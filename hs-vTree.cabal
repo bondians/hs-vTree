@@ -1,0 +1,23 @@
+name:                   hs-vTree
+version:                0.0.0.1
+stability:              experimental
+
+cabal-version:          >= 1.2
+build-type:             Simple
+
+author:                 James Cook <mokus@deepbondi.net>
+maintainer:             James Cook <mokus@deepbondi.net>
+license:                PublicDomain
+homepage:               /dev/null
+
+category:               Unclassified
+synopsis:               Quick and dirty host control lib for vTreeLED
+description:            Quick and dirty host control lib for vTreeLED
+
+Library
+  ghc-options:          -Wall
+  hs-source-dirs:       src
+  exposed-modules:      VTree
+  build-depends:        base >= 3,
+                        serial,
+                        unix
