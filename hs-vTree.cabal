@@ -19,5 +19,9 @@ Library
   hs-source-dirs:       src
   exposed-modules:      VTree
   build-depends:        base >= 3,
+                        bytestring,
+                        cereal,
                         serial,
-                        unix
+                        stm,
+                        unix,
+                        xbee
