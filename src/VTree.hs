@@ -60,4 +60,4 @@ setRGB16 (VTree _ _ t) _addr r g b = atomically (writeTVar t (r, g, b))
 send :: XBee -> Addr -> (Word16, Word16, Word16) -> IO ()
 send x addr (r, g, b) = writeXBee x $
     TxFrame (Tx 0 (Just txDisableAck) addr msg)
-    where msg = runPut (mapM_ putWord16be [b,g,r])
+    where msg = runPut (mapM_ putWord16be [r,g,b])
