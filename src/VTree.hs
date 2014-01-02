@@ -1,7 +1,4 @@
-module VTree
-    ( Addr(..)
-    , module VTree
-    ) where
+module VTree where
 
 import Control.Concurrent
 import Control.Concurrent.STM
@@ -11,15 +8,22 @@ import Data.Word
 import System.Serial
 import System.Posix.Terminal
 import Network.Protocol.XBee
-import Network.Protocol.XBee.Series1
+import Network.Protocol.XBee.Series2
 
-data VTree = VTree !XBee !ThreadId !(TVar (Word16, Word16, Word16))
+data VTree = VTree !(XBee Series2) !ThreadId !(TVar (Word16, Word16, Word16))
 type Level = Word16
 
 data Response = OK | Fail !String
     deriving (Eq, Ord, Show)
 
-sender :: XBee -> TVar (Word16, Word16, Word16) -> IO ()
+type Addr = Word64
+
+prototype :: Addr
+prototype =
+    -- Addr16 2
+    0x13a20040b087b0
+
+sender :: XBee Series2 -> TVar (Word16, Word16, Word16) -> IO ()
 sender h t = go =<< atomically (readTVar t)
     where
         go prev = do
@@ -28,7 +32,7 @@ sender h t = go =<< atomically (readTVar t)
                 when (next == prev) retry
                 return next
             
-            send h (Addr16 2) next
+            send h prototype next
             threadDelay (round (1e6 / 30 :: Double))
             go next
 
@@ -57,7 +61,7 @@ setRGB h addr r g b = setRGB16 h addr (f r) (f g) (f b)
 setRGB16 :: VTree -> Addr -> Level -> Level -> Level -> IO ()
 setRGB16 (VTree _ _ t) _addr r g b = atomically (writeTVar t (r, g, b))
 
-send :: XBee -> Addr -> (Word16, Word16, Word16) -> IO ()
+send :: XBee Series2 -> Addr -> (Word16, Word16, Word16) -> IO ()
 send x addr (r, g, b) = writeXBee x $
-    TxFrame (Tx 0 (Just txDisableAck) addr msg)
+    TxFrame (Tx 0 addr 0xFFFE 0 Nothing msg)
     where msg = runPut (mapM_ putWord16be [r,g,b])
